@@ -1,0 +1,7 @@
+# Specs
+
+## Run
+
+```
+$ python
+```
