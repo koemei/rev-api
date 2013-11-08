@@ -93,12 +93,30 @@ class RevClient(BaseClient):
         print response
         return response
 
-    def dl_transcripts(self, order):
-        pass
-        #if order.transcripts.empty?
-        #puts "There are no transcripts for order #{order_num}"
-        #return
-        #filenames = order.transcripts.map { |t| t.name}.join(',')
-        #puts "Downloading files: #{filenames}"
-        #order.transcripts.each do |t|
-        #  @rev_client.save_attachment_content t.id, t.name
+    def save_transcript(self, transcript_id, path):
+        """
+        Get the raw data for the attachment with given id.
+        Download the contents of an attachment and save it into a file. Use this method to download either a finished transcript,
+        finished translation or a source file for an order.
+        For transcript and translation attachments, you may request to get the contents in a specific
+        representation, specified via a mime-type.
+
+        See {Rev::Order::Attachment::REPRESENTATIONS} hash, which contains symbols for currently supported mime types.
+        The authoritative list is in the API documentation at http://www.rev.com/api/attachmentsgetcontent
+
+        @param transcript_id [String] rev id of the transcript to save.
+        @param path [String] path to file into which the content is to be saved.
+        @param mime_type [String, nil] mime-type for the desired format in which the content should be retrieved.
+        @return [String] filepath content has been saved to. Might raise standard IO exception if file creation files
+        """
+
+        response = self.request_get(
+            url=["attachments", transcript_id, "content"],
+            headers={
+                'Accept': 'text/plain',
+                'Accept-Charset': 'utf-8'
+            }
+        )
+
+        with open(path, "wb") as local_file:
+            local_file.write(response.content)

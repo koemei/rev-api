@@ -115,7 +115,7 @@ class Input(ApiSerializable):
     def __json__(self):
         return {
             'external_link': self.uri,
-            'audio_length': 10
+            'audio_length': self.audio_length
         }
 
 
@@ -141,4 +141,4 @@ class Notification(ApiSerializable):
         """
         super(Notification, self).__init__(fields=None)
         self.url = url
-        self.level = level if level is not None else self.LEVEL['final_only']
+        self.level = level if level is not None else self.LEVELS['final_only']

@@ -19,19 +19,7 @@ Usage
 --------
 
 ```
-python
->>> from rev.client import RevClient
->>> client = RevClient()
->>> client.prepay_balance()
-u'1.00'
->>> client.order_url("http://example.com/media.mp3")
-{u'message': u"Order '0a0' Created", u'audiofiles': [0000001], u'order': u'0a0'}
-```
-
-or
-
-```
-python ex/order_mediaid.py
+python example/orders.py
 ```
 
 Known issues

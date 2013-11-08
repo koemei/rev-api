@@ -85,7 +85,7 @@ class BaseClient(object):
             self.log.error(traceback.format_exc())
             raise
 
-    def request_get(self, url, params={}):
+    def request_get(self, url, params={}, headers={}):
         """
         GET call at the given url
         @params url: the path to the method to call, relative to the api root url
@@ -96,7 +96,8 @@ class BaseClient(object):
         response = requests.get(
             url=self.path(url),
             params=params,
-            auth=RevAuth(client_api_key=self._client_api_key, user_api_key=self._user_api_key)
+            auth=RevAuth(client_api_key=self._client_api_key, user_api_key=self._user_api_key),
+            headers=headers
         )
         self.verify_response(response)
         return response.json()
@@ -129,6 +130,8 @@ class BaseClient(object):
 
         # HTTP response codes are handled here and propagated up to the caller, since caller should be able
         # to handle all types of errors the same - using exceptions
-        if not response.status_code == requests.codes.ok:
-            print response._content
+        if not response.status_code == requests.codes.ok and response.status_code != 201:
+            log = logging.getLogger()
+            log.error("Error executing query!")
+            log.error(response.__dict__)
             response.raise_for_status()
