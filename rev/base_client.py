@@ -85,7 +85,7 @@ class BaseClient(object):
             self.log.error(traceback.format_exc())
             raise
 
-    def request_get(self, url, params={}, headers={}):
+    def request_get(self, url, params={}, headers={}, stream=False):
         """
         GET call at the given url
         @params url: the path to the method to call, relative to the api root url
@@ -97,10 +97,14 @@ class BaseClient(object):
             url=self.path(url),
             params=params,
             auth=RevAuth(client_api_key=self._client_api_key, user_api_key=self._user_api_key),
-            headers=headers
+            headers=headers,
+            stream=stream
         )
         self.verify_response(response)
-        return response.json()
+        if not stream:
+            return response.json()
+        else:
+            return response
 
     def request_post(self, url, params={}):
         """

@@ -113,10 +113,21 @@ class RevClient(BaseClient):
         response = self.request_get(
             url=["attachments", transcript_id, "content"],
             headers={
-                'Accept': 'text/plain',
+                #'Accept': 'text/plain',
+                #'Accept': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                 'Accept-Charset': 'utf-8'
-            }
+            },
+            stream=True
         )
-
         with open(path, "wb") as local_file:
+            #try:
             local_file.write(response.content)
+            #except:
+            #    local_file.write(response.content)
+            #except requests.exceptions.ChunkedEncodingError, e:
+            #    print e
+            #    print e.__dict__
+            #for chunk in response.iter_content(chunk_size=512):
+            #    if chunk: # filter out keep-alive new chunks
+            #        local_file.write(chunk)
+            #       local_file.flush()

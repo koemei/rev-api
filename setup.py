@@ -15,6 +15,8 @@ setup(name='Rev API Client',
       license='Apache License 2.0',
       keywords='Rev transcription api Koemei',
       install_requires=[
-          "requests >=2.0.0"
+          "requests >=2.0.0",
+          "docx",
+          "lxml",
       ],
  )

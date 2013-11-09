@@ -119,7 +119,6 @@ class Input(ApiSerializable):
         }
 
 
-
 class Notification(ApiSerializable):
     """
     Notification Info. Optionally you may request that an HTTP post be made to a url of your choice when the order enters
