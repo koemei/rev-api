@@ -1,16 +1,11 @@
 import requests
 import logging
 logging.basicConfig()
-import os
 import traceback
 import pprint
 import json
-
-from ConfigParser import SafeConfigParser
-from ConfigParser import Error as ConfigParserError
-
-from rev.exceptions import SettingsFileNotFoundError
 from rev.auth import RevAuth
+from rev.utils import read_settings_file
 from copy import copy
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -26,24 +21,11 @@ class BaseClient(object):
         Create the api client
         """
 
+        # setup settings
+        self.settings = read_settings_file()
+
         # setup logger
         self.log = logging.getLogger(__name__)
-        self.log.setLevel('DEBUG')
-
-        # read settings
-        settings_file_path = "settings.ini"
-        try:
-            if os.path.exists(settings_file_path):
-                self.settings = SafeConfigParser()
-                self.settings.read(settings_file_path)
-            else:
-                raise SettingsFileNotFoundError("Settings file not found, please copy settings.example.ini to settings.ini and fill in your details")
-        except ConfigParserError, e:
-            self.log.error("Error parsing settings file")
-            self.log.error(e)
-            self.log.error(traceback.format_exc())
-            raise e
-
         self.log.setLevel(self.settings.get('logging', 'level'))
 
         # init config
