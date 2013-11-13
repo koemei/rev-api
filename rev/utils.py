@@ -32,6 +32,7 @@ def docx_to_txt(source, dest):
     with open(dest, "wb") as txt_file:
         txt = '\n'.join(newparatextlist)\
             .replace('’', '\'')\
+            .replace('‘', '\'')\
             .replace('“', '\"')\
             .replace('”', '\"')\
             .replace('…', '...')\
