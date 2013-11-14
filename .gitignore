@@ -1,5 +1,6 @@
-/Rev_API.egg-info
+/Rev_API_Client.egg-info
 /build
 /dist
 /examples/transcripts
 settings.ini
+*.pyc
