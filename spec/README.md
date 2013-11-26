@@ -3,5 +3,5 @@
 ## Run
 
 ```
-$ python
+$ python testrunner.py
 ```

@@ -36,8 +36,7 @@ python save_transcripts.py
 Known issues
 ---------
 
-* how to retrieve plain text files (currently converting locally docx to txt)
-* some docx files are not valid zip files (see )
+Soon
 
 Troubleshooting
 ----------
