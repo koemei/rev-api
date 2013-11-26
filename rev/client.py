@@ -20,7 +20,7 @@ class RevClient(BaseClient):
         Loads single page of existing orders for current client
         @note http://www.rev.com/api/ordersget
         @param page [Int, nil] 0-based page number, defaults to 0
-        @return [OrdersListPage] paged result cointaining 'orders'
+        @return [OrdersListPage] paged result containing 'orders'
         """
         response = self.request_get(
             url=["orders"],
@@ -90,7 +90,6 @@ class RevClient(BaseClient):
             url=['orders'],
             params=order_request.__json__()
         )
-        print response
         return response
 
     def save_transcript(self, transcript_id, path):
@@ -113,21 +112,15 @@ class RevClient(BaseClient):
         response = self.request_get(
             url=["attachments", transcript_id, "content"],
             headers={
-                #'Accept': 'text/plain',
-                #'Accept': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'Accept-Charset': 'utf-8'
+                'Accept': 'text/plain',
+                'Accept-Charset': 'iso-8859-1'
             },
             stream=True
         )
         with open(path, "wb") as local_file:
-            #try:
-            local_file.write(response.content)
-            #except:
-            #    local_file.write(response.content)
-            #except requests.exceptions.ChunkedEncodingError, e:
-            #    print e
-            #    print e.__dict__
-            #for chunk in response.iter_content(chunk_size=512):
-            #    if chunk: # filter out keep-alive new chunks
-            #        local_file.write(chunk)
-            #       local_file.flush()
+            try:
+                local_file.write(response.content)
+            except Exception, e:
+                self.log.error("Error saving transcript %s to %s" % (transcript_id, path))
+                self.log.error(e)
+                raise

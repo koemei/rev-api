@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import docx
-import lxml
 import os
-import zipfile
 import traceback
 
 from ConfigParser import SafeConfigParser
@@ -12,23 +9,12 @@ from ConfigParser import Error as ConfigParserError
 from rev.exceptions import SettingsFileNotFoundError
 
 
-def docx_to_txt(source, dest):
+def cleanup_txt(source, dest):
     """
-    Don't ask...
+    Remove annotations (speaker, inaudible, ...)
     """
-    try:
-        document = docx.opendocx(source)
-    except:
-        print "Exception opening docx %s" %source
-        return False
-    paratextlist = docx.getdocumenttext(document=document)
-
-    # Make explicit unicode version
-    newparatextlist = []
-    for paratext in paratextlist:
-        newparatextlist.append(paratext.encode("utf-8").strip())
-
-    # Print out text of document with two newlines under each paragraph
+    #TODO
+    """
     with open(dest, "wb") as txt_file:
         txt = '\n'.join(newparatextlist)\
             .replace('’', '\'')\
@@ -39,7 +25,8 @@ def docx_to_txt(source, dest):
             .replace('Speaker 1:', '')\
             .replace('\t', '')
         txt_file.write(txt)
-
+    """
+    raise NotImplementedError("TODO: implement me!")
 
 def read_settings_file():
     """

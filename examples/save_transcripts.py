@@ -9,24 +9,27 @@ To run this script, make sure the settings.ini file at the root of the project i
 import os
 import pprint
 from rev.client import RevClient
-from rev.utils import docx_to_txt
 pp = pprint.PrettyPrinter(indent=4)
 
+order_number = '<fill in the order number from which to download>'
 
 client = RevClient()
 orders = client.get_orders_page().orders
 for order in orders:
     #pp.pprint(order)
-    if order['status'] == 'Complete' and order['order_number'] == 'TC0842973403':
+    if order['order_number'] == order_number:
         for att in order['attachments']:
             if att['kind'] == 'transcript':
-                docx_dest = "examples/transcripts/docx/%s" % att["name"].split('.')[0]+".docx"
-                if not os.path.exists(docx_dest):
-                    client.save_transcript(
-                        transcript_id=att["id"],
-                        path=docx_dest
-                    )
-                    txt_dest = "examples/transcripts/txt/%s" % att["name"].split('.')[0]+".txt"
-                    docx_to_txt(source=docx_dest, dest=txt_dest)
-                else:
-                    print "skip %s, already present" % docx_dest
+                print att["name"]
+                local_file_path =  "%s%s" % (
+                    client.settings.get("test", "local_path"),
+                    att["name"].replace('.docx','').replace('.mp4','')+".txt"
+                )
+                if not os.path.exists(local_file_path):
+                    try:
+                        client.save_transcript(
+                            transcript_id=att["id"],
+                            path=local_file_path
+                        )
+                    except Exception, e:
+                        print "Error downloading transcript for %s" % att["name"]
