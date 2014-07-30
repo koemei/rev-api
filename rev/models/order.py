@@ -1,5 +1,5 @@
 from rev.models.api_serializable import ApiSerializable
-
+from rev.exceptions import OrderNotFoundError
 
 class OrderListPage(ApiSerializable):
     """
@@ -156,3 +156,22 @@ class Order(ApiSerializable):
         @return [Array of Attachment] with the kind of "transcript"
         """
         return [source for source in self.attachments if source.kind == Attachment.KINDS['media']]
+
+    @classmethod
+    def transcript_path(cls, client, client_ref):
+        """
+        This is horrible but we are waiting for https://github.com/revdotcom/rev-ruby-sdk/issues/1
+        """
+        page_nr = 0
+        found = False
+        while page_nr < 100 and not found:
+            orders = client.get_orders_page(page=page_nr).orders
+            for order in orders:
+                if 'client_ref' in order:
+                    print order['client_ref']
+                    if len([att for att in order['attachments'] if att['kind']=='transcript']) == 1:
+                        if order['client_ref'] == client_ref:
+                            att = [att for att in order['attachments'] if att['kind']=='transcript'][0]
+                            return att['id']
+            page_nr += 1
+        raise OrderNotFoundError(message="Order with client_ref %s not found" % client_ref)

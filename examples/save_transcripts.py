@@ -9,27 +9,35 @@ To run this script, make sure the settings.ini file at the root of the project i
 import os
 import pprint
 from rev.client import RevClient
+from rev.models.order import Order
 pp = pprint.PrettyPrinter(indent=4)
 
-order_number = '<fill in the order number from which to download>'
-
 client = RevClient()
-orders = client.get_orders_page().orders
-for order in orders:
-    #pp.pprint(order)
-    if order['order_number'] == order_number:
-        for att in order['attachments']:
-            if att['kind'] == 'transcript':
-                print att["name"]
-                local_file_path =  "%s%s" % (
-                    client.settings.get("test", "local_path"),
-                    att["name"].replace('.docx','').replace('.mp4','')+".txt"
-                )
-                if not os.path.exists(local_file_path):
-                    try:
-                        client.save_transcript(
-                            transcript_id=att["id"],
-                            path=local_file_path
-                        )
-                    except Exception, e:
-                        print "Error downloading transcript for %s" % att["name"]
+
+order_client_ids = [
+'babc64e8-7451-4898-9477-f2c8f2495fee',
+]
+
+
+print "%i orders to download" % len(order_client_ids)
+nb_downloaded = 0
+
+for client_ref in order_client_ids:
+    # Get the path to the transcript
+    transcript_id = Order.transcript_path(
+        client=client,
+        client_ref=client_ref
+    )
+    local_file_path = "%s%s.txt" % (
+        client.settings.get("base", "local_path"),
+        client_ref
+    )
+
+    print "Downloading match %s -- (%i of %i)" % (transcript_id, nb_downloaded+1, len(order_client_ids))
+    client.save_transcript(
+        transcript_id=transcript_id,
+        path=local_file_path
+    )
+    nb_downloaded = nb_downloaded +1
+
+print "%i orders downloaded of %i" % (nb_downloaded, len(order_client_ids))
