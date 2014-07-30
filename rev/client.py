@@ -92,7 +92,7 @@ class RevClient(BaseClient):
         )
         return response
 
-    def save_transcript(self, transcript_id, path):
+    def save_transcript(self, transcript_id, path=None):
         """
         Get the raw data for the attachment with given id.
         Download the contents of an attachment and save it into a file. Use this method to download either a finished transcript,
@@ -117,10 +117,13 @@ class RevClient(BaseClient):
             },
             stream=True
         )
-        with open(path, "wb") as local_file:
-            try:
-                local_file.write(response.content)
-            except Exception, e:
-                self.log.error("Error saving transcript %s to %s" % (transcript_id, path))
-                self.log.error(e)
-                raise
+        if path is not None:
+            with open(path, "wb") as local_file:
+                try:
+                    local_file.write(response.content)
+                except Exception, e:
+                    self.log.error("Error saving transcript %s to %s" % (transcript_id, path))
+                    self.log.error(e)
+                    raise
+        else:
+            return response.content
