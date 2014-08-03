@@ -175,3 +175,33 @@ class Order(ApiSerializable):
                             return att['id']
             page_nr += 1
         raise OrderNotFoundError(message="Order with client_ref %s not found" % client_ref)
+
+    @classmethod
+    def get_ref_from_client_ref(cls, client, client_ref):
+        """
+        This is horrible but we are waiting for https://github.com/revdotcom/rev-ruby-sdk/issues/1
+        """
+        page_nr = 0
+        found = False
+        while page_nr < 100 and not found:
+            orders = client.get_orders_page(page=page_nr).orders
+            for order in orders:
+                if 'order_number' in order:
+                    return order['order_number']
+            page_nr += 1
+        raise OrderNotFoundError(message="Order with client_ref %s not found" % client_ref)
+
+    @classmethod
+    def mock_notification(self, order_number, client_ref):
+        import urllib
+        import urllib2
+
+        url = 'https://www.koemei.com/REST/services/rev'
+        values = {'order_number': order_number,
+                  'client_ref': client_ref,
+                    'status': 'Delivered'}
+
+        data = urllib.urlencode(values)
+        req = urllib2.Request(url, data)
+        response = urllib2.urlopen(req)
+        the_page = response.read()
