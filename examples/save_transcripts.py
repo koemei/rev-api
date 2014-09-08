@@ -15,18 +15,19 @@ pp = pprint.PrettyPrinter(indent=4)
 client = RevClient()
 
 order_client_ids = [
-'babc64e8-7451-4898-9477-f2c8f2495fee',
+    ('c865eb7a-1f82-4fb4-844f-e0946b4e6c33', 'TC0004567767')
 ]
 
 
 print "%i orders to download" % len(order_client_ids)
 nb_downloaded = 0
 
-for client_ref in order_client_ids:
+for client_ref, order_number in order_client_ids:
     # Get the path to the transcript
     transcript_id = Order.transcript_path(
         client=client,
-        client_ref=client_ref
+        client_ref=client_ref,
+        order_number=order_number
     )
     local_file_path = "%s%s.txt" % (
         client.settings.get("base", "local_path"),

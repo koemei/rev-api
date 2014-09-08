@@ -158,23 +158,39 @@ class Order(ApiSerializable):
         return [source for source in self.attachments if source.kind == Attachment.KINDS['media']]
 
     @classmethod
-    def transcript_path(cls, client, client_ref):
-        """
-        This is horrible but we are waiting for https://github.com/revdotcom/rev-ruby-sdk/issues/1
-        """
-        page_nr = 0
-        found = False
-        while page_nr < 100 and not found:
-            orders = client.get_orders_page(page=page_nr).orders
-            for order in orders:
-                if 'client_ref' in order:
-                    print order['client_ref']
-                    if len([att for att in order['attachments'] if att['kind']=='transcript']) == 1:
-                        if order['client_ref'] == client_ref:
-                            att = [att for att in order['attachments'] if att['kind']=='transcript'][0]
-                            return att['id']
-            page_nr += 1
-        raise OrderNotFoundError(message="Order with client_ref %s not found" % client_ref)
+    def transcript_path(cls, client, client_ref, order_number=None):
+
+        def get_attachment_id(order):
+            if isinstance(order, Order):
+                if hasattr(order, 'client_ref') and order.client_ref == client_ref:
+                    transcripts = [att for att in order.attachments if att.kind == 'transcript']
+                    if len(transcripts) == 1:
+                        return transcripts[0].id
+            else:
+                if 'client_ref' in order and order['client_ref'] == client_ref:
+                    transcripts = [att for att in order['attachments'] if att.kind == 'transcript']
+                    if len(transcripts) == 1:
+                        return transcripts[0]['id']
+            return None
+
+        if order_number is not None:
+            order = client.get_order(order_number)
+            transcript_id = get_attachment_id(order)
+            if transcript_id is not None:
+                return transcript_id
+            raise OrderNotFoundError(message="Order does not have a transcript_id")
+        else:
+            # This is horrible but we are waiting for https://github.com/revdotcom/rev-ruby-sdk/issues/1
+            page_nr = 0
+            found = False
+            while page_nr < 100 and not found:
+                orders = client.get_orders_page(page=page_nr).orders
+                for order in orders:
+                    transcript_id = get_attachment_id(order)
+                    if transcript_id is not None:
+                        return transcript_id
+                page_nr += 1
+            raise OrderNotFoundError(message="Order with client_ref %s not found" % client_ref)
 
     @classmethod
     def get_ref_from_client_ref(cls, client, client_ref):
